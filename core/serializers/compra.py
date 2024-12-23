@@ -2,8 +2,6 @@ from rest_framework.serializers import ModelSerializer
 from rest_framework.serializers import CharField, ModelSerializer, SerializerMethodField
 from core.models import Compra, ItensCompra
 
-from core.models import Compra
-
 class CompraSerializer(ModelSerializer):
     usuario = CharField(source="usuario.email", read_only=True) 
     status = CharField(source="get_status_display", read_only=True)
@@ -23,3 +21,23 @@ class ItensCompraSerializer(ModelSerializer):
         model = ItensCompra
         fields = ("livro", "quantidade", "total")
         depth = 1
+
+class ItensCompraCreateUpdateSerializer(ModelSerializer):
+    class Meta:
+        model = ItensCompra
+        fields = ("livro", "quantidade")
+        
+class CompraCreateUpdateSerializer(ModelSerializer):
+    itens = ItensCompraCreateUpdateSerializer(many=True)
+
+    class Meta:
+        model = Compra
+        fields = ("usuario", "itens")
+        
+    def create(self, validated_data):
+        itens_data = validated_data.pop("itens")
+        compra = Compra.objects.create(**validated_data)
+        for item_data in itens_data:
+            ItensCompra.objects.create(compra=compra, **item_data)
+        compra.save()
+        return compra

@@ -10,4 +10,4 @@ from core.serializers import (
     LivroSerializer,
 )
 
-from .compra import CompraSerializer
+from .compra import CompraSerializer, CompraCreateUpdateSerializer, ItensCompraSerializer
