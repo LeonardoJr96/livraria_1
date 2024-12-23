@@ -9,3 +9,5 @@ from core.serializers import (
     LivroRetrieveSerializer,
     LivroSerializer,
 )
+
+from .compra import CompraSerializer
