@@ -35,8 +35,7 @@ class TokenAuthentication(authentication.BaseAuthentication):
         if not request.headers.get("Authorization"):
             return None
 
-        token = request.headers.get("Authorization").split()[1]
-        psg_user_id: str = self._get_user_id(token)
+        psg_user_id: str = self._get_user_id(request)
         user: User = self._get_or_create_user(psg_user_id)
 
         return (user, None)
@@ -53,9 +52,9 @@ class TokenAuthentication(authentication.BaseAuthentication):
 
         return user
 
-    def _get_user_id(self, token) -> str:
+    def _get_user_id(self, request) -> str:
         try:
-            psg_user_id: str = psg.validateJwt(token)
+            psg_user_id: str = psg.authenticateRequest(request)
         except PassageError as e:
             # print(e)
             raise AuthenticationFailed(e.message) from e

@@ -3,13 +3,17 @@ Django admin customization.
 """
 
 from django.contrib import admin
+from core.models import Autor, Categoria, Editora, Livro, User
 from django.contrib.auth.admin import UserAdmin as BaseUserAdmin
 from django.utils.translation import gettext_lazy as _
 
 from core import models
-from core.models import Autor, Categoria, Editora, Livro, User, Compra, ItensCompra
+from core.models import Compra
+from core.models import ItensCompra
 
 
+
+@admin.register(User)
 class UserAdmin(BaseUserAdmin):
     """Define the admin pages for users."""
 
@@ -51,11 +55,8 @@ class UserAdmin(BaseUserAdmin):
         ),
     )
 
-#@admin.register(User)
-#class UserAdmin(BaseUserAdmin):
-    
-admin.site.register(models.User, UserAdmin)
-    
+
+
 @admin.register(Autor)
 class AutorAdmin(admin.ModelAdmin):
     list_display = ('nome', 'email')
@@ -74,10 +75,10 @@ class CategoriaAdmin(admin.ModelAdmin):
 
 @admin.register(Editora)
 class EditoraAdmin(admin.ModelAdmin):
-    list_display = ('nome', 'site')
-    search_fields = ('nome', 'site')
-    list_filter = ('nome', 'site')
-    ordering = ('nome', 'site')
+    list_display = ('nome', 'email', 'cidade')
+    search_fields = ('nome', 'email', 'cidade')
+    list_filter = ('nome', 'email', 'cidade')
+    ordering = ('nome', 'email', 'cidade')
     list_per_page = 10
 
 @admin.register(Livro)
@@ -90,8 +91,9 @@ class LivroAdmin(admin.ModelAdmin):
 
 class ItensCompraInline(admin.TabularInline):
     model = ItensCompra
-    extra = 1
-    
+    extra = 1 # Quantidade de itens adicionais
+
+
 @admin.register(Compra)
 class CompraAdmin(admin.ModelAdmin):
     list_display = ("usuario", "status")
@@ -100,3 +102,4 @@ class CompraAdmin(admin.ModelAdmin):
     ordering = ("usuario", "status")
     list_per_page = 25
     inlines = [ItensCompraInline]
+
