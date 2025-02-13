@@ -1,12 +1,19 @@
 from rest_framework.viewsets import ModelViewSet
 from core.models import Compra
 from rest_framework.permissions import IsAuthenticated
+from django_filters.rest_framework import DjangoFilterBackend
+from rest_framework.filters import SearchFilter, OrderingFilte
 from core.serializers import CompraCreateUpdateSerializer, CompraListSerializer, CompraSerializer
 
 
 class CompraViewSet(ModelViewSet):
     queryset = Compra.objects.all()
     serializer_class = CompraSerializer
+    filter_backends = [DjangoFilterBackend, OrderingFilter, SearchFilter]
+    filterset_fields = ["usuario__email", "status", "data"]
+    search_fields = ["usuario__email"]
+    ordering_fields = ["usuario__email", "status", "data"]
+    ordering = ["-data"]
     permission_classes = [IsAuthenticated] 
 
     def get_queryset(self):
