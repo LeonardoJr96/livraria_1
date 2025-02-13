@@ -19,16 +19,32 @@ class LivroViewSet(ModelViewSet):
             return LivroRetrieveSerializer
         return LivroSerializer
 
-    @action(detail=True, methods=["patch"])
-    def alterar_preco(self, request, pk=None):
-        livro = self.get_object()
+        @action(detail=True, methods=["patch"])
+        def alterar_preco(self, request, pk=None):
+            livro = self.get_object()
 
-        serializer = LivroAlterarPrecoSerializer(data=request.data)
-        serializer.is_valid(raise_exception=True)
+            serializer = LivroAlterarPrecoSerializer(data=request.data)
+            serializer.is_valid(raise_exception=True)
 
-        livro.preco = serializer.validated_data["preco"]
-        livro.save()
+            livro.preco = serializer.validated_data["preco"]
+            livro.save()
 
-        return Response(
-            {"detail": f"Preço do livro '{livro.titulo}' atualizado para {livro.preco}."}, status=status.HTTP_200_OK
-        )
+            return Response(
+                {"detail": f"Preço do livro '{livro.titulo}' atualizado para {livro.preco}."}, status=status.HTTP_200_OK
+            )
+        
+        @action(detail=True, methods=["post"])
+        def ajustar_estoque(self, request, pk=None):
+            livro = self.get_object()
+
+            serializer = LivroAjustarEstoqueSerializer(data=request.data, context={"livro": livro})
+            serializer.is_valid(raise_exception=True)
+
+            quantidade_ajuste = serializer.validated_data["quantidade"]
+
+            livro.quantidade += quantidade_ajuste
+            livro.save()
+
+            return Response(
+                {"status": "Quantidade ajustada com sucesso", "novo_estoque": livro.quantidade}, status=status.HTTP_200_OK
+            )
