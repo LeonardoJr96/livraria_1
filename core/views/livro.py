@@ -1,16 +1,28 @@
 from core.serializers import LivroRetrieveSerializer, LivroSerializer, LivroListSerializer
 from rest_framework.viewsets import ModelViewSet
-from django_filters.rest_framework import DjangoFilterBackend
-from rest_framework.filters import SearchFilter, OrderingFilte
+from rest_framework import status
+from rest_framework.decorators import action
+from rest_framework.filters import OrderingFilter, SearchFilter
+from rest_framework.response import Response
 from core.models import Livro
+
+from core.models import Livro, Favorito
 from core.serializers import (
     LivroAlterarPrecoSerializer,
     LivroListSerializer,
     LivroRetrieveSerializer,
     LivroSerializer,
+    FavoritoSerializer
 )
 
+from django.db.models.aggregates import Sum
+
+from django_filters.rest_framework import DjangoFilterBackend
+from rest_framework.filters import SearchFilter, OrderingFilter
+
 class LivroViewSet(ModelViewSet):
+    queryset = Livro.objects.all()
+    serializer_class = LivroSerializer
     queryset = Livro.objects.all()
     serializer_class = LivroSerializer
     filter_backends = [DjangoFilterBackend, SearchFilter, OrderingFilter]
@@ -18,14 +30,14 @@ class LivroViewSet(ModelViewSet):
     search_fields = ["titulo"]
     ordering_fields = ["titulo", "preco"]
     ordering = ["titulo"]
-    
+
     def get_serializer_class(self):
         if self.action == "list":
             return LivroListSerializer
         elif self.action == "retrieve":
             return LivroRetrieveSerializer
         return LivroSerializer
-
+    
     @action(detail=True, methods=["patch"])
     def alterar_preco(self, request, pk=None):
         livro = self.get_object()
@@ -39,7 +51,8 @@ class LivroViewSet(ModelViewSet):
         return Response(
             {"detail": f"Preço do livro '{livro.titulo}' atualizado para {livro.preco}."}, status=status.HTTP_200_OK
         )
-        
+    
+    
     @action(detail=True, methods=["post"])
     def ajustar_estoque(self, request, pk=None):
         livro = self.get_object()
@@ -55,10 +68,10 @@ class LivroViewSet(ModelViewSet):
         return Response(
             {"status": "Quantidade ajustada com sucesso", "novo_estoque": livro.quantidade}, status=status.HTTP_200_OK
         )
-            
+    
     @action(detail=False, methods=["get"])
     def mais_vendidos(self, request):
-        livros = Livro.objects.annotate(total_vendidos=Sum("itenscompra__quantidade")).filter(total_vendidos__gt=10)
+        livros = Livro.objects.annotate(total_vendidos=Sum("quantidade")).filter(total_vendidos__gt=10)
 
         data = [
             {
@@ -70,3 +83,16 @@ class LivroViewSet(ModelViewSet):
         ]
 
         return Response(data, status=status.HTTP_200_OK)
+
+    @action(detail=False, methods=["get"])
+    def livro_favorito(self, request):
+        favorito = Favorito.objects.filter(livro=1)
+        data = [
+            {
+               "id": livro.id,
+                "titulo": livro.titulo 
+          }
+           for livro in favorito
+      ]
+        return Response(data, status=status.HTTP_200_OK)
+

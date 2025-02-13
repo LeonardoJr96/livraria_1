@@ -10,8 +10,8 @@ from django.utils.translation import gettext_lazy as _
 from core import models
 from core.models import Compra
 from core.models import ItensCompra
-
-
+from core.models import Favorito
+from core.models import Presente
 
 @admin.register(User)
 class UserAdmin(BaseUserAdmin):
@@ -88,14 +88,6 @@ class LivroAdmin(admin.ModelAdmin):
     list_filter = ('editora', 'categoria')
     ordering = ('titulo', 'editora', 'categoria')
     list_per_page = 25
-    
-@admin.register(Produto)
-class ProdutoAdmin(admin.ModelAdmin):
-    list_display = ('titulo', 'loja', 'tipo')
-    search_fields = ('titulo', 'editora__nome', 'categoria__descricao')
-    list_filter = ('loja', 'tipo')
-    ordering = ('titulo', 'loja', 'tipo')
-    list_per_page = 25
 
 class ItensCompraInline(admin.TabularInline):
     model = ItensCompra
@@ -110,4 +102,19 @@ class CompraAdmin(admin.ModelAdmin):
     ordering = ("usuario", "status")
     list_per_page = 25
     inlines = [ItensCompraInline]
-
+    
+@admin.register(Favorito)
+class FavoritoAdmin(admin.ModelAdmin):
+    list_display = ("user", "livro")
+    search_fields = ("user", "livro")
+    list_filter = ("user", "livro")
+    ordering = ("user", "livro")
+    list_per_page = 25
+    
+@admin.register(Presente)
+class PresenteAdmin(admin.ModelAdmin):
+    list_display = ("usuario", "nome", "descricao")
+    search_fields = ("usuario__username", "nome", "descricao")
+    list_filter = ("usuario",)
+    ordering = ("usuario", "nome")
+    list_per_page = 25

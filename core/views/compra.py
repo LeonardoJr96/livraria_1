@@ -1,20 +1,27 @@
 from rest_framework.viewsets import ModelViewSet
 from core.models import Compra
 from rest_framework.permissions import IsAuthenticated
-from django_filters.rest_framework import DjangoFilterBackend
-from rest_framework.filters import SearchFilter, OrderingFilte
 from core.serializers import CompraCreateUpdateSerializer, CompraListSerializer, CompraSerializer
 
+from django.db import transaction
+from rest_framework import status
+from rest_framework.decorators import action
+from rest_framework.response import Response
+
+from django_filters.rest_framework import DjangoFilterBackend
+from rest_framework.filters import SearchFilter, OrderingFilter
 
 class CompraViewSet(ModelViewSet):
+
+    
     queryset = Compra.objects.all()
     serializer_class = CompraSerializer
+    permission_classes = [IsAuthenticated] 
     filter_backends = [DjangoFilterBackend, OrderingFilter, SearchFilter]
     filterset_fields = ["usuario__email", "status", "data"]
     search_fields = ["usuario__email"]
     ordering_fields = ["usuario__email", "status", "data"]
     ordering = ["-data"]
-    permission_classes = [IsAuthenticated] 
 
     def get_queryset(self):
         usuario = self.request.user
@@ -61,6 +68,7 @@ class CompraViewSet(ModelViewSet):
             compra.save()
 
         return Response(status=status.HTTP_200_OK, data={"status": "Compra finalizada"})
+    
 
     @action(detail=False, methods=["get"])
     def relatorio_vendas_mes(self, request):
@@ -80,3 +88,4 @@ class CompraViewSet(ModelViewSet):
             },
             status=status.HTTP_200_OK,
         )
+    

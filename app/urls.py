@@ -15,21 +15,24 @@ from core.views import (
     EditoraViewSet,
     LivroViewSet,
     UserViewSet,
+    FavoritoViewSet,
+    PresenteViewSet,
 )
 from rest_framework.routers import DefaultRouter
 from rest_framework_simplejwt.views import TokenObtainPairView, TokenRefreshView
 from uploader.router import router as uploader_router
 
-from core.views import UserViewSet, CategoriaViewSet, EditoraViewSet, AutorViewSet, LivroViewSet, ProdutoViewSet
+from core.views import UserViewSet, CategoriaViewSet, EditoraViewSet, AutorViewSet, LivroViewSet
 
 router = DefaultRouter()
 router.register(r"usuarios", UserViewSet, basename="usuarios")
 router.register(r"categorias", CategoriaViewSet)
 router.register(r"editoras", EditoraViewSet)
 router.register(r"autores", AutorViewSet)
-router.register(r"produtos ", ProdutoViewSet)
 router.register(r"livros", LivroViewSet)
 router.register(r"compras", CompraViewSet)
+router.register(r"favoritos", FavoritoViewSet)
+router.register(r"presentes", PresenteViewSet)
 
 urlpatterns = [
     path("admin/", admin.site.urls),

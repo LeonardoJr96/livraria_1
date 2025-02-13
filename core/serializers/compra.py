@@ -72,10 +72,12 @@ class CompraCreateUpdateSerializer(ModelSerializer):
     def create(self, validated_data):
         itens = validated_data.pop("itens")
         usuario = validated_data["usuario"]
-
+    
         compra, criada = Compra.objects.get_or_create(
             usuario=usuario, status=Compra.StatusCompra.CARRINHO, defaults=validated_data
         )
+
+        
 
         for item in itens:
             item_existente = compra.itens.filter(livro=item["livro"]).first()
@@ -87,9 +89,10 @@ class CompraCreateUpdateSerializer(ModelSerializer):
             else:
                 item["preco"] = item["livro"].preco
                 ItensCompra.objects.create(compra=compra, **item)
-                
-        compra.save()
+
+        compra.save() # linha adicionada para salvar a compra
         return compra
+    
 
     def update(self, compra, validated_data):
         itens = validated_data.pop("itens", [])
@@ -100,5 +103,7 @@ class CompraCreateUpdateSerializer(ModelSerializer):
                 ItensCompra.objects.create(compra=compra, **item)
 
         return super().update(compra, validated_data)
+    
+
 
     
