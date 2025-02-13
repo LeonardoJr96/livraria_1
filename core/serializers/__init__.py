@@ -11,6 +11,13 @@ from .livro import (
     LivroSerializer,
 )
 
+from .Produto import ProdutoListRetrieveSerializer, ProdutoSerializer
+from .Produto import (
+    ProdutoListSerializer,
+    ProdutoRetrieveSerializer,
+    ProdutoSerializer,
+)
+
 from .compra import (
     CompraListSerializer, # novo
     CompraCreateUpdateSerializer,

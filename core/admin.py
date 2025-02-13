@@ -88,6 +88,14 @@ class LivroAdmin(admin.ModelAdmin):
     list_filter = ('editora', 'categoria')
     ordering = ('titulo', 'editora', 'categoria')
     list_per_page = 25
+    
+@admin.register(Produto)
+class ProdutoAdmin(admin.ModelAdmin):
+    list_display = ('titulo', 'loja', 'tipo')
+    search_fields = ('titulo', 'editora__nome', 'categoria__descricao')
+    list_filter = ('loja', 'tipo')
+    ordering = ('titulo', 'loja', 'tipo')
+    list_per_page = 25
 
 class ItensCompraInline(admin.TabularInline):
     model = ItensCompra
