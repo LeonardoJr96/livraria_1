@@ -24,3 +24,33 @@ class CompraViewSet(ModelViewSet):
             return CompraCreateUpdateSerializer
         return CompraSerializer
     
+    @action(detail=True, methods=["post"])
+    def finalizar(self, request, pk=None):
+        compra = self.get_object()
+
+        if compra.status != Compra.StatusCompra.CARRINHO:
+            return Response(
+                status=status.HTTP_400_BAD_REQUEST,
+                data={"status": "Compra já finalizada"},
+            )
+
+        with transaction.atomic():
+            for item in compra.itens.all():
+
+                if item.quantidade > item.livro.quantidade:
+                    return Response(
+                        status=status.HTTP_400_BAD_REQUEST,
+                        data={
+                            "status": "Quantidade insuficiente",
+                            "livro": item.livro.titulo,
+                            "quantidade_disponivel": item.livro.quantidade,
+                        },
+                    )
+
+                item.livro.quantidade -= item.quantidade
+                item.livro.save()
+
+            compra.status = Compra.StatusCompra.FINALIZADO
+            compra.save()
+
+        return Response(status=status.HTTP_200_OK, data={"status": "Compra finalizada"})
